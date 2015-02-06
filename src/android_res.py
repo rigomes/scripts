@@ -10,6 +10,7 @@ import os
 import glob
 import xml.etree.ElementTree as ET
 import subprocess
+import platform
 
 from Tkinter import Tk
 from tkFileDialog import askdirectory
@@ -18,8 +19,32 @@ from tkFileDialog import askdirectory
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 # Densidades de DPI alvo:
+# [0.75, 1.0, 1.5, 2.0, 3.0, 4.0]
+# ['ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
+#
+# As resoluções ldpi foram removidas pois os dipositivos ldpi
+# não representam mais uma fração significativa dos Androids.
 dpis = [0.75, 1.0, 1.5, 2.0, 3.0, 4.0]
 dpis_str = ['ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
+
+# Verifica se um programa existe em PATH
+def fsoftware(name):
+    cmd = "where" if platform.system() == "Windows" else "which"
+    try: 
+        subprocess.call([cmd, name])
+    except: 
+        return False
+    return True
+
+if not fsoftware('inkscape'):
+    print 'inkscape nao instalado ou nao definido em PATH.'
+    raw_input("Pressione ENTER para sair...")
+    exit(-1)
+
+if not fsoftware('pngout'):
+    print 'pngout nao instalado ou nao definido em PATH.'
+    raw_input("Pressione ENTER para sair...")
+    exit(-1)
 
 os.system('cls' if os.name == 'nt' else 'clear')
 print 'RES Builder'
@@ -62,6 +87,7 @@ for svg in files:
         target = target.lower()
 
         subprocess.call(['inkscape',
+                         '--without-gui',
                          '-z',
                          '-e',
                          current_path + target,
@@ -71,5 +97,3 @@ for svg in files:
 
         subprocess.call(['pngout',
                          current_path + target])
-
-
